@@ -1,31 +1,111 @@
 <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Lie for Me</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.1.0/math.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@icon/dripicons/dripicons.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lekton&family=Roboto&display=swap" rel="stylesheet">
 
-<html id="Hitchhiker">
-
-    <head>
-        <meta charset "utf-8">
-        <title> Arthur is Back! </title>
-        
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@200&family=Josefin+Sans:wght@200&display=swap" rel="stylesheet">
-        <link href="styles/styles.css" rel="stylesheet">
-
-    </head>
-
-    <body>
-        <h1 id="Adams"></h1>
-        <a href="" title="" target="_blank"> <img src="" alt=""></a>
- 
-        <p id="quote">
-           
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <script type="module" src="script.js"></script>
+    
+    <canvas id='c'></canvas>
+    <button id="info-button"><i class="dripicons dripicons-question"></i></button>
+    <div id="info" class="hidden">
+      <button id="reset-button">Reset Animation</button>
+      <h3>Current Matrix</h3> 
+      <div id="current-matrix" class='matrix'>
+        <!-- in Katex and changed in real time -->
+      </div>
+      <h3>Matrix Expression</h3>
+      <p>where \(\theta\) is time-varying</p>
+      <div id="matrix-expression" class='matrix'>
+        <!-- in katex and includes theta variable -->
+        <!-- default: our -->
+      </div>
+      <button id="edit-matrix-button">Edit Matrix Expression</button>
+      <div id="matrix-input-wrapper" class='hidden'>
+        <select id="matrix-select">
+            <option value="">-Choose a Matrix-</option>
+            <option value="identity">Identity</option>
+            <option value="rotation">Rotation</option>
+            <option value="swirly1">Many circles</option>
+            <option value="swirly2">Something swishy</option>
+            <option value="spider">Long spindly flows</option>
+            <option value='pancake'>Pancake spirals</option>
+            <option value="original">The original one</option>
+        </select>
+        <p>or write your own expressions</p>
+        <div id="matrix-input">
+          <!-- a grid of text areas for the user to type expressions in plain text  -->
+          <textarea id="matrix-entry-11">sin(2 theta)</textarea>
+          <textarea id="matrix-entry-12">0</textarea>
+          <textarea id="matrix-entry-13">cos(6 theta)</textarea>
+          <textarea id="matrix-entry-21">0</textarea>
+          <textarea id="matrix-entry-22">sin(theta)</textarea>
+          <textarea id="matrix-entry-23">-cos(theta)</textarea>
+          <textarea id="matrix-entry-31">-cos(theta)</textarea>
+          <textarea id="matrix-entry-32">cos(4 theta)</textarea>
+          <textarea id="matrix-entry-33">sin(theta)</textarea>
+        </div>
+      </div>
+      <div class='slider-div'>
+        <label for="theta-speed">\(\theta\) speed</label>
+        <input type="range" id="theta-dot" name="theta-speed" class="slider"
+          min="0" max="0.002" step="0.00001" value="0.0005">
+      </div>
+      <div class='slider-div'>
+        <label for="rotation-speed">Camera rotation </label>
+        <input type="range" id="camera-dot" name="rotation-speed" class="slider"
+          min="0" max="1.5" step="0.01" value="0.2">
+      </div>
+      <h1 id='learn-more'>What is this?</h1>
+      <div id='content' class='hidden'>
+        <p>You are seeing the orbits of the matrix exponential map acting on a set of 26 vectors in \( \mathbb{R}^3 \).</p>
+        <h2>Exponential What?</h2>
+        <p> The (usual) exponential function is a map \(\operatorname{exp} : \R \to \R \) given by the following power series:
+        $$\exp(x) = \sum_{n=0}^\infty \frac{x^n}{n!}.$$
+        This power series can be shown to converge everywhere and has connections to Euler's constant <span style="white-space: nowrap;">\( e \).</span>
+        We can generalize this function to a map \( \operatorname{exp} : M_n(\R) \to M_n(\R) \), that is we apply the power series on real-valued square matrices:
+        $$ \exp(X) = \sum_{n=0}^\infty \frac{X^n}{n!}. $$
+        This map can be shown to converge with respect to any matrix norm, but it is most easily shown with the operator norm as it is an easy consequence of the fact that the usual exponential function on \( \R \) converges everywhere.</p>
+        <h2>Ok, but what am I looking at?</h2>
+        <p>The matrix exponential map has a suprising property: the exponential of <emph>any</emph> square matrix is invertible.
+        In fact, this follows from the fact that \( \exp(A + B) = \exp(A) \exp(B) \) whenever \( A \) and \( B \) commute.
+        Thus, the inverse of \( \exp(A) \) is none other than <span style="white-space: nowrap;">\( \exp(-A) \),</span> mirroring a similar fact about the usual exponential on the real numbers.
+        This means that the matrix exponential is in fact a map into the group of \(  n \times n \) invertible matrices:
+        \[ \exp: M_n(\R) \to GL_n(\R). \]
+        The lines that you see are related by a concept called a one-parameter subgroup of a Lie group.</p>
+        <p> Formally speaking, a one parameter subgroup is a map
+        \[ \varphi : \R \to G \]
+        such that \( \varphi \) is a smooth homomorphism, in the sense that is it infinitely differentiable (this concept is defined since \( G \) is a smooth manifold by virtue of the fact that it is a Lie group, but this detail is not so important) and the following holds for all \( s, t \) in \( \mathbb R \)
+        \[ \varphi(s + t) = \varphi(s) \varphi(t). \] </p>
+        <p>These one-parameter subgroups can be viewed geometrically as tracing a curve through the manifold <span style="white-space: nowrap;">\( G \).</span>
+        In our case, we a tracing a curve through the space of invertible \( 3 \times 3 \) matrices <span style="white-space: nowrap;">\( GL_3(\mathbb R) \).</span>
+        The connection between this and the matrix exponential is that every one-parameter subgroup of a matrix Lie group (i.e. a subgroup of \( GL_n(\mathbb R) \) which is still a Lie group) has the form
+        \[ \varphi(t) = \exp(tA) \]
+        for some matrix <span style="white-space: nowrap;">\( A \in M_n(\mathbb{R}) \).</span>
+        <h2>So how do we get curves in \( \mathbb R^3 \)?</h2>
+        Square matrices in \( GL_n(\mathbb R) \) act on \( \mathbb R^n \) by matrix-vector multiplication.
+        So, we can bring down a curve in \( GL_3(\mathbb R) \) back into a curve in \( \mathbb R^3 \) by picking a point \( v \in \mathbb R^3 \) and computing the <emph>orbit</emph> <span style="white-space: nowrap;">\( \varphi(\mathbb R) v \).</span>
+        In otherwords, for every matrix in the curve described by the exponential map
+        \[ t \mapsto \exp(tA) \]
+        we multiply the vector \( v \) by that matrix.
+        Explicitly, we compute the curve 
+        \[ t \mapsto \exp(tA) v. \]
+        What you see being animated are 26 of these orbits, while also varying the matrix \( A \) over time.
         </p>
-
-
-        <script src="scripts/main.js"></script>   
-
-    </body>
-
+      </div>
+    </div>
+  </body>
 </html>
 
 
